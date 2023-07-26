@@ -27,6 +27,12 @@ built_nigeria <- mask(
     y = nigeria_vector
   )
 
+
+writeRaster(
+  x = built_nigeria,
+  filename = "output/grids/built_nigeria.tif"
+)
+
 plot(built_nigeria)
 
 
@@ -52,20 +58,24 @@ breaks_nigera_6 <- natural_breaks(
 # create classes from these break points
 
 # class names
-names3 <- c(
-  "rural",
-  "peri-urban",
-  "urban"
-)
+# names3 <- c(
+#   "rural",
+#   "peri-urban",
+#   "urban"
+# )
+# 
+# names6 <- c(
+#   "rural",
+#   "semi-rural",
+#   "rural-peri-urban",
+#   "peri-urban",
+#   "urban",
+#   "dense-urban"
+# )
 
-names6 <- c(
-  "rural",
-  "semi-rural",
-  "rural-peri-urban",
-  "peri-urban",
-  "urban",
-  "dense-urban"
-)
+names3 <- 1:3
+
+names6 <- 1:6
 
 
 bnv3 <- case_when(
