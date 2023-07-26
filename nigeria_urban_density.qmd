@@ -1,0 +1,106 @@
+---
+title: "Urban density classification for Nigeria"
+author: "Gerry Ryan"
+format:
+  html: default
+  gfm: default
+editor: source
+date: 2023-07-26
+---
+
+This is a preliminary classification of urban density based on volume of built structures in an area for Nigeria.
+
+```{r, echo = FALSE, results = 'hide', message=FALSE}
+library(terra)
+library(viridisLite)
+
+built_nigeria <- rast("output/grids/built_nigeria.tif")
+
+built_nigeria_3 <- rast("output/grids/urban_nigeria_3.tif")
+built_nigeria_6 <- rast("output/grids/urban_nigeria_6.tif")
+
+lagos_area <-  ext(
+  c(
+    2.91081917173319,
+    4,
+    6.3,
+    7.3
+  )
+)
+```
+
+
+The basis for these classifications is the 
+[GHS built-up volume grid](https://ghsl.jrc.ec.europa.eu/ghs_buV2023.php) produced by the European Commission Joint Research Council, which measures the bult volume in cubic metres over space.
+
+Here is the base layer for all of Nigeria:
+```{r, echo = FALSE}
+plot(
+  built_nigeria,
+  col = mako(
+    n = 2048,
+   direction = -1
+  )
+)
+```
+
+And focussed in on the south-west of the country around Lagos:
+```{r, echo = FALSE}
+plot(
+  built_nigeria,
+  col = mako(
+    n = 2048,
+   direction = -1
+  ),
+  ext = lagos_area
+)
+```
+
+
+Using Jenks natural breaks classification of the cubed root of volume^[This is done to 'flatten' the volumes to allowing for greater differentiation among the lower end of the scale, and relatively less differentiation at the upper end, e.g. among very tall buildings] we classify these into either three density classes:
+
+```{r, echo = FALSE}
+plot(
+  built_nigeria_3,
+  col = mako(
+    n = 3,
+    direction = -1
+  )
+)
+```
+
+Or six density classes:
+```{r, echo = FALSE}
+plot(
+  built_nigeria_6,
+  col = mako(
+    n = 6,
+    direction = -1
+  )
+)
+```
+
+This is the same data as above focussing on the Lagos area for 3 classes:
+```{r, echo = FALSE}
+ plot(
+  built_nigeria_3,
+  ext = lagos_area,
+  col = mako(
+    n = 3,
+    direction = -1
+  )
+)
+```
+
+And six classes:
+```{r, echo = FALSE}
+plot(
+  built_nigeria_6,
+  ext = lagos_area,
+  col = mako(
+    n = 6,
+    direction = -1
+  )
+)
+```
+
