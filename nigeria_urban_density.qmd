@@ -4,6 +4,7 @@ author: "Gerry Ryan"
 format:
   html: default
   gfm: default
+  pdf: default
 editor: source
 date: 2023-07-26
 ---
@@ -13,25 +14,92 @@ This is a preliminary classification of urban density based on volume of built s
 ```{r, echo = FALSE, results = 'hide', message=FALSE}
 library(terra)
 library(viridisLite)
+library(tidyterra)
+library(ggplot2)
+library(dplyr)
+library(geodata)
 
 built_nigeria <- rast("output/grids/built_nigeria.tif")
 
 built_nigeria_3 <- rast("output/grids/urban_nigeria_3.tif")
 built_nigeria_6 <- rast("output/grids/urban_nigeria_6.tif")
 
+built_kwara_3 <- rast("output/grids/urban_kwara_3.tif")
+built_kwara_6 <- rast("output/grids/urban_kwara_6.tif")
+
 lagos_area <-  ext(
   c(
-    2.91081917173319,
-    4,
+    3,
+    3.5,
     6.3,
-    7.3
+    6.8
   )
 )
+
+ilorin_area <- ext(
+  c(
+    4.25,
+    4.75,
+    8.25,
+    8.75
+  )
+)
+
+nigeria_states <- gadm(
+  country = "NGA",
+  level = 1,
+  path = "data/downloads"
+)
+
+
+kwara_vector <- nigeria_states %>%
+  filter(NAME_1 == "Kwara")
+
+built_kwara_3 <- mask(
+  x = built_nigeria_3,
+  mask = kwara_vector
+) %>%
+  crop(
+    y = kwara_vector
+  )
+
+built_kwara_6 <- mask(
+  x = built_nigeria_6,
+  mask = kwara_vector
+) %>%
+  crop(
+    y = kwara_vector
+  )
+
+lagos_ogun_vector <- nigeria_states %>%
+  filter(NAME_1 == "Lagos" | NAME_1 == "Ogun")
+
+ext_lagos_ogun <- ext(lagos_ogun_vector)
+
+
+built_lagos_ogun_3 <- mask(
+  x = built_nigeria_3,
+  mask = lagos_ogun_vector
+) %>%
+  crop(
+    y = lagos_ogun_vector
+  )
+
+built_lagos_ogun_6 <- mask(
+  x = built_nigeria_6,
+  mask = lagos_ogun_vector
+) %>%
+  crop(
+    y = lagos_ogun_vector
+  )
+
 ```
 
 
 The basis for these classifications is the 
 [GHS built-up volume grid](https://ghsl.jrc.ec.europa.eu/ghs_buV2023.php) produced by the European Commission Joint Research Council, which measures the bult volume in cubic metres over space.
+
+## Base layer of built structure volume
 
 Here is the base layer for all of Nigeria:
 ```{r, echo = FALSE}
@@ -42,9 +110,45 @@ plot(
    direction = -1
   )
 )
+lines(
+  nigeria_states,
+  col = "grey"
+)
+
+# ggplot() +
+#   geom_spatraster(
+#     data = built_nigeria
+#   ) +
+#   scale_fill_viridis_c(
+#     option = "G",
+#     direction = -1,
+#     na.value = "white"
+#   ) +
+#   geom_spatvector(
+#     data = nigeria_states,
+#     colour = "grey40",
+#     fill = NA
+#   ) +
+#   theme_minimal()
 ```
 
-And focussed in on the south-west of the country around Lagos:
+And focussed in on the south-west of the country in Lagos and Ogun states:
+```{r, echo = FALSE}
+plot(
+  built_nigeria,
+  col = mako(
+    n = 2048,
+   direction = -1
+  ),
+  ext = ext_lagos_ogun
+)
+lines(
+  nigeria_states,
+  col = "grey40"
+)
+```
+
+Close up of Lagos city:
 ```{r, echo = FALSE}
 plot(
   built_nigeria,
@@ -54,8 +158,47 @@ plot(
   ),
   ext = lagos_area
 )
+lines(
+  nigeria_states,
+  col = "grey40"
+)
 ```
 
+And here Kwara state only
+```{r, echo = FALSE}
+plot(
+  built_nigeria %>%
+    mask(kwara_vector) %>%
+    crop(kwara_vector),
+  col = mako(
+    n = 2048,
+   direction = -1
+  )
+)
+lines(
+  kwara_vector,
+  col = "grey40"
+)
+```
+And a close up of Ilorin city:
+```{r, echo = FALSE}
+plot(
+  built_nigeria %>%
+    mask(kwara_vector) %>%
+    crop(kwara_vector),
+  col = mako(
+    n = 2048,
+   direction = -1
+  ),
+  ext = ilorin_area
+)
+lines(
+  kwara_vector,
+  col = "grey40"
+)
+```
+
+## Classification
 
 Using Jenks natural breaks classification of the cubed root of volume^[This is done to 'flatten' the volumes to allowing for greater differentiation among the lower end of the scale, and relatively less differentiation at the upper end, e.g. among very tall buildings] we classify these into either three density classes:
 
@@ -66,6 +209,10 @@ plot(
     n = 3,
     direction = -1
   )
+)
+lines(
+  nigeria_states,
+  col = "grey40"
 )
 ```
 
@@ -78,9 +225,48 @@ plot(
     direction = -1
   )
 )
+lines(
+  nigeria_states,
+  col = "grey40"
+)
+```
+### Lagos and Ogun states
+
+This is the same data as above focussing on Lagos and Ogun states for 3 classes:
+```{r, echo = FALSE}
+ plot(
+  built_nigeria_3,
+  ext = ext_lagos_ogun,
+  col = mako(
+    n = 3,
+    direction = -1
+  )
+)
+lines(
+  nigeria_states,
+  col = "grey40"
+)
 ```
 
-This is the same data as above focussing on the Lagos area for 3 classes:
+And six classes:
+```{r, echo = FALSE}
+plot(
+  built_nigeria_6,
+  ext = ext_lagos_ogun,
+  col = mako(
+    n = 6,
+    direction = -1
+  )
+)
+lines(
+  nigeria_states,
+  col = "grey40"
+)
+```
+
+### Lagos city
+
+Close up of Lagos city for 3 classes:
 ```{r, echo = FALSE}
  plot(
   built_nigeria_3,
@@ -89,6 +275,10 @@ This is the same data as above focussing on the Lagos area for 3 classes:
     n = 3,
     direction = -1
   )
+)
+lines(
+  nigeria_states,
+  col = "grey40"
 )
 ```
 
@@ -102,5 +292,74 @@ plot(
     direction = -1
   )
 )
+lines(
+  nigeria_states,
+  col = "grey40"
+)
 ```
 
+### Kwara state
+
+Kwara state for 3 classes:
+```{r, echo = FALSE}
+ plot(
+  built_kwara_3,
+  col = mako(
+    n = 3,
+    direction = -1
+  )
+)
+lines(
+  kwara_vector,
+  col = "grey40"
+)
+```
+
+And six classes:
+```{r, echo = FALSE}
+plot(
+  built_kwara_6,
+  col = mako(
+    n = 6,
+    direction = -1
+  )
+)
+lines(
+  kwara_vector,
+  col = "grey40"
+)
+```
+
+### Ilorin city
+
+And the area around Ilorin city state for 3 classes:
+```{r, echo = FALSE}
+ plot(
+  built_kwara_3,
+  col = mako(
+    n = 3,
+    direction = -1
+  ),
+  ext = ilorin_area
+)
+lines(
+  kwara_vector,
+  col = "grey40"
+)
+```
+
+And six classes:
+```{r, echo = FALSE}
+plot(
+  built_kwara_6,
+  col = mako(
+    n = 6,
+    direction = -1
+  ),
+  ext = ilorin_area
+)
+lines(
+  kwara_vector,
+  col = "grey40"
+)
+```

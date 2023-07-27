@@ -4,6 +4,7 @@ library(rgeoda)
 library(geodata)
 library(viridisLite)
 
+
 # load in built volume layer processed from An. stephensi
 built_volume <- rast("data/MAP_covariates/GHS_BUILT_V_R23A.2020.Annual.Data.1km.Data.tif")
 
@@ -17,6 +18,17 @@ nigeria_vector <- gadm(
 nigeria_vector
 
 plot(nigeria_vector)
+
+# get internal state boundaries
+nigeria_states <- gadm(
+  country = "NGA",
+  level = 1,
+  path = "data/downloads"
+)
+
+nigeria_states
+
+plot(nigeria_states)
 
 # mask and crop built volume to area of interest (Nigeria)
 built_nigeria <- mask(
@@ -248,3 +260,68 @@ plot(
   )
 )
 dev.off()
+
+
+### focus on Kwara state
+
+library(tidyterra)
+kwara_vector <- nigeria_states %>%
+  filter(NAME_1 == "Kwara")
+
+built_kwara_3 <- mask(
+  x = built_nigeria_3,
+  mask = kwara_vector
+) %>%
+  crop(
+    y = kwara_vector
+  )
+
+
+built_kwara_6 <- mask(
+  x = built_nigeria_6,
+  mask = kwara_vector
+) %>%
+  crop(
+    y = kwara_vector
+  )
+
+
+plot(
+  plot(
+    built_kwara_3,
+    col = mako(
+      n = 3,
+      direction = -1
+    )
+  )
+)
+
+plot(
+  plot(
+    built_kwara_6,
+    col = mako(
+      n = 6,
+      direction = -1
+    )
+  )
+)
+
+writeRaster(
+  x = built_kwara_3,
+  filename = "output/grids/urban_kwara_3.tif",
+  overwrite = TRUE
+)
+
+writeRaster(
+  x = built_kwara_6,
+  filename = "output/grids/urban_kwara_6.tif",
+  overwrite = TRUE
+)
+
+
+
+
+library(ggplot2)
+
+ggplot() +
+  geom_spatvector(data = built_nigeria_6)
