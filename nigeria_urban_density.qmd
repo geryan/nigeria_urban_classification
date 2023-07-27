@@ -55,21 +55,6 @@ nigeria_states <- gadm(
 kwara_vector <- nigeria_states %>%
   filter(NAME_1 == "Kwara")
 
-built_kwara_3 <- mask(
-  x = built_nigeria_3,
-  mask = kwara_vector
-) %>%
-  crop(
-    y = kwara_vector
-  )
-
-built_kwara_6 <- mask(
-  x = built_nigeria_6,
-  mask = kwara_vector
-) %>%
-  crop(
-    y = kwara_vector
-  )
 
 lagos_ogun_vector <- nigeria_states %>%
   filter(NAME_1 == "Lagos" | NAME_1 == "Ogun")
@@ -95,13 +80,12 @@ built_lagos_ogun_6 <- mask(
 
 ```
 
-
-The basis for these classifications is the 
-[GHS built-up volume grid](https://ghsl.jrc.ec.europa.eu/ghs_buV2023.php) produced by the European Commission Joint Research Council, which measures the bult volume in cubic metres over space.
+The basis for these classifications is the [GHS built-up volume grid](https://ghsl.jrc.ec.europa.eu/ghs_buV2023.php) produced by the European Commission Joint Research Council, which measures the bult volume in cubic metres over space.
 
 ## Base layer of built structure volume
 
 Here is the base layer for all of Nigeria:
+
 ```{r, echo = FALSE}
 plot(
   built_nigeria,
@@ -133,6 +117,7 @@ lines(
 ```
 
 And focussed in on the south-west of the country in Lagos and Ogun states:
+
 ```{r, echo = FALSE}
 plot(
   built_nigeria,
@@ -149,6 +134,7 @@ lines(
 ```
 
 Close up of Lagos city:
+
 ```{r, echo = FALSE}
 plot(
   built_nigeria,
@@ -165,6 +151,7 @@ lines(
 ```
 
 And here Kwara state only
+
 ```{r, echo = FALSE}
 plot(
   built_nigeria %>%
@@ -180,7 +167,9 @@ lines(
   col = "grey40"
 )
 ```
+
 And a close up of Ilorin city:
+
 ```{r, echo = FALSE}
 plot(
   built_nigeria %>%
@@ -202,6 +191,7 @@ lines(
 
 Using Jenks natural breaks classification of the cubed root of volume^[This is done to 'flatten' the volumes to allowing for greater differentiation among the lower end of the scale, and relatively less differentiation at the upper end, e.g. among very tall buildings] we classify these into either three density classes:
 
+
 ```{r, echo = FALSE}
 plot(
   built_nigeria_3,
@@ -217,6 +207,7 @@ lines(
 ```
 
 Or six density classes:
+
 ```{r, echo = FALSE}
 plot(
   built_nigeria_6,
@@ -230,9 +221,11 @@ lines(
   col = "grey40"
 )
 ```
+
 ### Lagos and Ogun states
 
 This is the same data as above focussing on Lagos and Ogun states for 3 classes:
+
 ```{r, echo = FALSE}
  plot(
   built_nigeria_3,
@@ -249,6 +242,7 @@ lines(
 ```
 
 And six classes:
+
 ```{r, echo = FALSE}
 plot(
   built_nigeria_6,
@@ -267,6 +261,7 @@ lines(
 ### Lagos city
 
 Close up of Lagos city for 3 classes:
+
 ```{r, echo = FALSE}
  plot(
   built_nigeria_3,
@@ -283,6 +278,7 @@ lines(
 ```
 
 And six classes:
+
 ```{r, echo = FALSE}
 plot(
   built_nigeria_6,
@@ -301,6 +297,7 @@ lines(
 ### Kwara state
 
 Kwara state for 3 classes:
+
 ```{r, echo = FALSE}
  plot(
   built_kwara_3,
@@ -316,6 +313,7 @@ lines(
 ```
 
 And six classes:
+
 ```{r, echo = FALSE}
 plot(
   built_kwara_6,
@@ -333,6 +331,7 @@ lines(
 ### Ilorin city
 
 And the area around Ilorin city state for 3 classes:
+
 ```{r, echo = FALSE}
  plot(
   built_kwara_3,
@@ -349,6 +348,7 @@ lines(
 ```
 
 And six classes:
+
 ```{r, echo = FALSE}
 plot(
   built_kwara_6,
