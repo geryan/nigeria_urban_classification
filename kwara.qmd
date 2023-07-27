@@ -1,0 +1,293 @@
+---
+title: "Kwara state density and vector data"
+author: "Gerry Ryan"
+format:
+  html: default
+  gfm: default
+  pdf: default
+editor: source
+date: 2023-07-26
+---
+
+
+```{r, echo = FALSE, results = 'hide', message=FALSE}
+library(terra)
+library(viridisLite)
+library(tidyterra)
+library(ggplot2)
+library(dplyr)
+library(geodata)
+library(RColorBrewer)
+
+built_nigeria <- rast("output/grids/built_nigeria.tif")
+built_kwara_3 <- rast("output/grids/urban_kwara_3.tif")
+built_kwara_6 <- rast("output/grids/urban_kwara_6.tif")
+an_ratios_kwara <- rast("output/grids/an_ratios_kwara.tif")
+irs_ratios_kwara <- rast("output/grids/irs_ratios_kwara.tif")
+itn_ratios_kwara <- rast("output/grids/itn_ratios_kwara.tif")
+ir_2017_kwara <- rast("output/grids/ir_2017_kwara.tif")
+irs_change_kwara <- rast("output/grids/irs_change_kwara.tif")
+itn_change_kwara <- rast("output/grids/itn_change_kwara.tif")
+
+ilorin_area <- ext(
+  c(
+    4.25,
+    4.75,
+    8.25,
+    8.75
+  )
+)
+
+nigeria_states <- gadm(
+  country = "NGA",
+  level = 1,
+  path = "data/downloads"
+)
+
+
+kwara_vector <- nigeria_states %>%
+  filter(NAME_1 == "Kwara")
+```
+
+## Urban density
+
+### Built volume base layer
+The basis for these  is the [GHS built-up volume grid](https://ghsl.jrc.ec.europa.eu/ghs_buV2023.php) produced by the European Commission Joint Research Council, which measures the bult volume in cubic metres over space.
+
+#### Kwara state
+```{r, echo = FALSE}
+plot(
+  built_nigeria %>%
+    mask(kwara_vector) %>%
+    crop(kwara_vector),
+  col = mako(
+    n = 2048,
+   direction = -1
+  )
+)
+lines(
+  kwara_vector,
+  col = "grey40"
+)
+```
+
+
+#### Ilorin city
+```{r, echo = FALSE}
+plot(
+  built_nigeria %>%
+    mask(kwara_vector) %>%
+    crop(kwara_vector),
+  col = mako(
+    n = 2048,
+   direction = -1
+  ),
+  ext = ilorin_area
+)
+lines(
+  kwara_vector,
+  col = "grey40"
+)
+```
+
+### Classification into density classes
+
+#### Kwara state, 3 classes
+
+```{r, echo = FALSE}
+ plot(
+  built_kwara_3,
+  col = mako(
+    n = 3,
+    direction = -1
+  )
+)
+lines(
+  kwara_vector,
+  col = "grey40"
+)
+```
+
+#### Kwara state 6 classes
+```{r, echo = FALSE}
+plot(
+  built_kwara_6,
+  col = mako(
+    n = 6,
+    direction = -1
+  )
+)
+lines(
+  kwara_vector,
+  col = "grey40"
+)
+```
+
+#### Ilorin city 3 classes
+```{r, echo = FALSE}
+ plot(
+  built_kwara_3,
+  col = mako(
+    n = 3,
+    direction = -1
+  ),
+  ext = ilorin_area
+)
+lines(
+  kwara_vector,
+  col = "grey40"
+)
+```
+
+#### Ilorin city six classes:
+```{r, echo = FALSE}
+plot(
+  built_kwara_6,
+  col = mako(
+    n = 6,
+    direction = -1
+  ),
+  ext = ilorin_area
+)
+lines(
+  kwara_vector,
+  col = "grey40"
+)
+```
+
+
+## Proportional abundance of dominant vectors
+These plots are from [*Modelling the relative abundance of the primary African vectors of malaria before and after the implementation of indoor, insecticide-based vector control*, Sinka et al. 2016](https://doi.org/10.1186/s12936-016-1187-8), cropped to Kwara state. The 
+
+### Base proportional abundance of *Anopheles gambiae*, *An. funestus*, and *An gambiae*
+This map shows the baseline relative proportional abundance of the three dominant vectors.
+```{r, echo = FALSE}
+plot(
+  an_ratios_kwara,
+  col = mako(
+    n = 2048,
+    direction = -1
+  ),
+  range = 0:1
+)
+```
+
+### After IRS
+
+#### Proportional relative abundance post-IRS
+This shows the expected proportional abundance after the application of IRS
+```{r, echo = FALSE}
+plot(
+  irs_ratios_kwara,
+  col = mako(
+    n = 2048,
+    direction = -1
+  ),
+  range = 0:1
+)
+```
+
+#### Change in proportion after IRS
+This is the differnce between the base proportional relative abundance, and the post-IRS proportional abundance (the previous two maps). Where it is green, the species is expected to be relatively more dominant post-IRS, and where it is purple it is expected to be relatively less dominant post-IRS
+```{r, echo = FALSE}
+plot(
+  irs_change_kwara,
+  col = brewer.pal(
+    n = 11,
+    name = "PRGn"
+  ),
+  range = c(-1, 1)
+)
+```
+
+
+### After ITN use
+
+#### Proportional relative abundance post-ITN use
+This shows the expected proportional abundance after the distribution of ITNs
+```{r, echo = FALSE}
+plot(
+  itn_ratios_kwara,
+  col = mako(
+    n = 2048,
+    direction = -1
+  ),
+  range = 0:1
+)
+```
+
+#### Change in proportion after ITN use
+This is the difference between the base proportional relative abundance, and the post-ITN proportional abundance (the first relative abundance map, and the previous map). Where it is green, the species is expected to be relatively more dominant post-IRS, and where it is purple it is expected to be relatively less dominant post-ITN distribution
+```{r, echo = FALSE}
+plot(
+  irs_change_kwara,
+  col = brewer.pal(
+    n = 11,
+    name = "PRGn"
+  ),
+  range = c(-1, 1)
+)
+```
+
+## Insecticide resistance
+These plots are from [*Mapping trends in insecticide resistance phenotypes in African malaria vectors*, Hancock et al 2020](https://doi.org/10.1186/s12936-016-1187-8), cropped to Kwara state.
+
+### Alphacypermethrin
+Predicted mean proportional mortality to **alphacypermethrin** in Kwara state. Low values (dark colours) indicate low mortality, meaning high resistance to this insecticide
+```{r, echo = FALSE}
+plot(
+  ir_2017_kwara$Alphacypermethrin_mortality,
+  col = mako(
+    n = 2048
+  ),
+  range = 0:1
+)
+```
+
+### DDT
+Predicted mean proportional mortality to **DDT** in Kwara state. Low values (dark colours) indicate low mortality, meaning high resistance to this insecticide
+```{r, echo = FALSE}
+plot(
+  ir_2017_kwara$DDT_mortality,
+  col = mako(
+    n = 2048
+  ),
+  range = 0:1
+)
+```
+
+### Deltamethrin
+Predicted mean proportional mortality to **deltamethrin** in Kwara state. Low values (dark colours) indicate low mortality, meaning high resistance to this insecticide
+```{r, echo = FALSE}
+plot(
+  ir_2017_kwara$Deltamethrin_mortality,
+  col = mako(
+    n = 2048
+  ),
+  range = 0:1
+)
+```
+
+### Lambdacyhalothrin
+Predicted mean proportional mortality to **lambdacyhalothrin** in Kwara state. Low values (dark colours) indicate low mortality, meaning high resistance to this insecticide
+```{r, echo = FALSE}
+plot(
+  ir_2017_kwara$Lambdacyhalothrin_mortality,
+  col = mako(
+    n = 2048
+  ),
+  range = 0:1
+)
+```
+
+### Permethrin
+Predicted mean proportional mortality to **permethrin** in Kwara state. Low values (dark colours) indicate low mortality, meaning high resistance to this insecticide
+```{r, echo = FALSE}
+plot(
+  ir_2017_kwara$Alphacypermethrin_mortality,
+  col = mako(
+    n = 2048
+  ),
+  range = 0:1
+)
+```
